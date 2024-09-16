@@ -28,6 +28,8 @@ public class LedControllerImpl implements LedController {
         JSONObject response = apiService.getLights();
         // get the "lights" array from the response
         JSONArray lights = response.getJSONArray("lights");
+
+        laufLicht(6);
         // read the first json object of the lights array
         JSONObject firstLight = lights.getJSONObject(0);
         turnOffAllLeds();
@@ -58,6 +60,30 @@ public class LedControllerImpl implements LedController {
             apiService.setLed(jsonObject.getInt("id"),jsonObject.getString("color"), false);
 
         }
+        return jsonObject;
+    }
+    public JSONObject laufLicht(int rounds) throws IOException {
+        JSONObject jsonObject = null;
+        JSONArray jsonArray = getGroupLEds();
+        turnOffAllLeds();
+        int counter =0;
+
+        while (counter<rounds) {
+            for (int i = 0; i < jsonArray.length(); i++) {
+                jsonObject = jsonArray.getJSONObject(i);
+                jsonObject.put("state", true);
+                jsonObject.put("color", "#F00");
+                apiService.setLed(jsonObject.getInt("id"), "#F00", true);
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
+                apiService.setLed(jsonObject.getInt("id"), "#F00", false);
+            }
+            counter++;
+        }
+
         return jsonObject;
     }
 }
